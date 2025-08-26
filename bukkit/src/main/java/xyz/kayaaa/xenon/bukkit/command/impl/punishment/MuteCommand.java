@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.command.impl;
+package xyz.kayaaa.xenon.bukkit.command.impl.punishment;
 
 import com.jonahseguin.drink.annotation.*;
 import org.bukkit.command.CommandSender;
@@ -10,7 +10,7 @@ import xyz.kayaaa.xenon.shared.grant.Grant;
 import xyz.kayaaa.xenon.shared.profile.Profile;
 import xyz.kayaaa.xenon.shared.punishment.Punishment;
 import xyz.kayaaa.xenon.shared.punishment.PunishmentType;
-import xyz.kayaaa.xenon.shared.redis.packets.PunishmentUpdatePacket;
+import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.service.impl.PunishmentService;

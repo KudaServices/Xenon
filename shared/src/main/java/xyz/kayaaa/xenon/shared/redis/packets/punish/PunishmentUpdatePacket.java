@@ -1,11 +1,9 @@
-package xyz.kayaaa.xenon.shared.redis.packets;
+package xyz.kayaaa.xenon.shared.redis.packets.punish;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import xyz.kayaaa.xenon.shared.redis.RedisPacket;
-
-import java.util.UUID;
 
 @AllArgsConstructor @NoArgsConstructor @Getter
 public class PunishmentUpdatePacket implements RedisPacket {

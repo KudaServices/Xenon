@@ -8,7 +8,8 @@ import xyz.kayaaa.xenon.shared.XenonConstants;
 import xyz.kayaaa.xenon.shared.XenonShared;
 import xyz.kayaaa.xenon.shared.profile.Profile;
 import xyz.kayaaa.xenon.shared.punishment.PunishmentType;
-import xyz.kayaaa.xenon.shared.redis.packets.PunishmentUpdatePacket;
+import xyz.kayaaa.xenon.shared.redis.listener.PacketListener;
+import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.tools.java.TimeUtils;
@@ -19,10 +20,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class PunishmentUpdateListener implements Consumer<PunishmentUpdatePacket> {
+public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePacket> {
 
     @Override
-    public void accept(PunishmentUpdatePacket packet) {
+    public void listen(PunishmentUpdatePacket packet) {
         TaskUtil.runTask(() -> {
             UUID authorUUID = UUID.fromString(packet.getAuthor());
             UUID targetUUID = UUID.fromString(packet.getTarget());

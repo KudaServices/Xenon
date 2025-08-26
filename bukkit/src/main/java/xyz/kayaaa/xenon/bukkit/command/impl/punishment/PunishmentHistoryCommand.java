@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.command.impl;
+package xyz.kayaaa.xenon.bukkit.command.impl.punishment;
 
 import com.jonahseguin.drink.annotation.Command;
 import com.jonahseguin.drink.annotation.OptArg;
@@ -16,8 +16,8 @@ public class PunishmentHistoryCommand extends CommandBase {
     }
 
     @Command(name = "", desc = "View all punishments of a player", usage = "<target>")
-    @Require("xenon.grant.view")
-    public void grants(@Sender Player player, @OptArg OfflinePlayer target) {
+    @Require("xenon.punish.view")
+    public void punishments(@Sender Player player, @OptArg OfflinePlayer target) {
         if (target == null) {
             new PunishmentsMenu(player.getUniqueId()).openMenu(player);
             return;
@@ -25,5 +25,4 @@ public class PunishmentHistoryCommand extends CommandBase {
 
         new PunishmentsMenu(target.getUniqueId()).openMenu(player);
     }
-
 }

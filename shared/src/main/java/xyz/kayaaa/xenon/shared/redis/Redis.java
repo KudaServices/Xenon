@@ -6,6 +6,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.JedisPubSubBase;
 import xyz.kayaaa.xenon.shared.XenonShared;
+import xyz.kayaaa.xenon.shared.redis.listener.PacketListener;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +25,7 @@ public class Redis {
     private final Jedis jedisSubscriber;
     private final String channel;
     private final Map<JedisPubSub, Thread> runningListeners = new HashMap<>();
-    private final Map<String, List<Consumer<RedisPacket>>> packetListeners = new ConcurrentHashMap<>();
+    private final Map<String, List<PacketListener<RedisPacket>>> packetListeners = new ConcurrentHashMap<>();
 
     private Redis(String redisHost, int redisPort, String channel) {
         this(redisHost, redisPort, null, channel);
@@ -139,12 +140,12 @@ public class Redis {
         }, v -> XenonShared.getInstance().getLogger().log("Redis packet listener has started!"));
     }
 
-    public <T extends RedisPacket> void registerListener(T packet, Consumer<T> listener) {
-        packetListeners.computeIfAbsent(packet.getID(), k -> new ArrayList<>()).add((Consumer<RedisPacket>) listener);
+    public <T extends RedisPacket> void registerListener(T packet, PacketListener<T> listener) {
+        packetListeners.computeIfAbsent(packet.getID(), k -> new ArrayList<>()).add((PacketListener<RedisPacket>) listener);
     }
 
     public void handlePacket(RedisPacket packet) {
-        List<Consumer<RedisPacket>> packetListeners = this.packetListeners.get(packet.getID());
+        List<PacketListener<RedisPacket>> packetListeners = this.packetListeners.get(packet.getID());
         if (packetListeners != null) {
             packetListeners.forEach(l -> {
                 XenonShared.getInstance().getLogger().log("Handling packet " + packet.getID() + " using " + l.getClass().getSimpleName());

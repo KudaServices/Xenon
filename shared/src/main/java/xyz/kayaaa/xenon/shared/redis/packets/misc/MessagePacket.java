@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.shared.redis.packets;
+package xyz.kayaaa.xenon.shared.redis.packets.misc;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

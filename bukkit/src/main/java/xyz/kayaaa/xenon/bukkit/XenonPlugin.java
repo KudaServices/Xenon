@@ -10,9 +10,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.spigotmc.SpigotConfig;
 import xyz.kayaaa.xenon.bukkit.command.CommandBase;
 import xyz.kayaaa.xenon.bukkit.listener.PlayerListener;
+import xyz.kayaaa.xenon.bukkit.listener.ServerListener;
 import xyz.kayaaa.xenon.bukkit.provider.RankProvider;
+import xyz.kayaaa.xenon.bukkit.provider.ServerProvider;
 import xyz.kayaaa.xenon.bukkit.redis.MessageListener;
 import xyz.kayaaa.xenon.bukkit.redis.PunishmentUpdateListener;
+import xyz.kayaaa.xenon.bukkit.redis.ServerCommandListener;
 import xyz.kayaaa.xenon.bukkit.redis.ServerStatusListener;
 import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitProfileService;
@@ -23,14 +26,18 @@ import xyz.kayaaa.xenon.shared.XenonShared;
 import xyz.kayaaa.xenon.shared.credentials.MongoCredentials;
 import xyz.kayaaa.xenon.shared.rank.Rank;
 import xyz.kayaaa.xenon.shared.credentials.RedisCredentials;
-import xyz.kayaaa.xenon.shared.redis.packets.MessagePacket;
-import xyz.kayaaa.xenon.shared.redis.packets.PunishmentUpdatePacket;
-import xyz.kayaaa.xenon.shared.redis.packets.ServerStatusPacket;
+import xyz.kayaaa.xenon.shared.redis.packets.misc.MessagePacket;
+import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
+import xyz.kayaaa.xenon.shared.redis.packets.server.ServerCommandPacket;
+import xyz.kayaaa.xenon.shared.redis.packets.server.ServerStatusPacket;
 import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.server.ServerType;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
+import xyz.kayaaa.xenon.shared.service.impl.ServerService;
 import xyz.kayaaa.xenon.shared.tools.java.ClassUtils;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.ConfigUtil;
+
+import java.util.Optional;
 
 @Getter
 public class XenonPlugin extends JavaPlugin {
@@ -120,8 +127,15 @@ public class XenonPlugin extends JavaPlugin {
             System.exit(0);
         }
 
+        Optional<Server> opt = ServiceContainer.getService(ServerService.class).find(this.mainConfig.getString("server.name"));
+        if (opt.isPresent() && opt.get().isOnline()) {
+            this.shared.getLogger().log("A Xenon server with the name " + this.mainConfig.getString("server.name") + " already exists!");
+            this.shared.getLogger().log("Please assert you're not already running a server instance with this configuration...");
+            System.exit(0);
+        }
+
         this.joinable = true;
-        Server server = new Server(this.mainConfig.getString("server.name"), ServerType.valueOf(this.mainConfig.getString("server.type")));
+        Server server = opt.orElseGet(() -> new Server(this.mainConfig.getString("server.name"), ServerType.valueOf(this.mainConfig.getString("server.type").toUpperCase())));
         server.setOnline(true);
         server.setWhitelisted(Bukkit.hasWhitelist());
         server.setMax(Bukkit.getMaxPlayers());
@@ -131,6 +145,7 @@ public class XenonPlugin extends JavaPlugin {
     private void setupCommands() {
         drink = Drink.get(this);
         drink.bind(Rank.class).toProvider(new RankProvider());
+        drink.bind(Server.class).toProvider(new ServerProvider());
         ClassUtils.getClasses(getFile(), this.getClass().getPackage().getName() + ".command.impl").stream().filter(c -> !c.getName().contains("$")).forEach(c -> {
             try {
                 CommandBase command = (CommandBase) c.newInstance();
@@ -157,7 +172,9 @@ public class XenonPlugin extends JavaPlugin {
         this.shared.getRedis().registerListener(new MessagePacket(), new MessageListener());
         this.shared.getRedis().registerListener(new ServerStatusPacket(), new ServerStatusListener());
         this.shared.getRedis().registerListener(new PunishmentUpdatePacket(), new PunishmentUpdateListener());
+        this.shared.getRedis().registerListener(new ServerCommandPacket(), new ServerCommandListener());
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        this.getServer().getPluginManager().registerEvents(new ServerListener(), this);
         this.getServer().getPluginManager().registerEvents(new MenuListener(), this);
     }
 

@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.command.impl;
+package xyz.kayaaa.xenon.bukkit.command.impl.punishment;
 
 import com.jonahseguin.drink.annotation.*;
 import org.bukkit.command.CommandSender;
@@ -6,15 +6,11 @@ import org.bukkit.entity.Player;
 import xyz.kayaaa.xenon.bukkit.XenonPlugin;
 import xyz.kayaaa.xenon.bukkit.command.CommandBase;
 import xyz.kayaaa.xenon.shared.XenonConstants;
-import xyz.kayaaa.xenon.shared.grant.Grant;
 import xyz.kayaaa.xenon.shared.profile.Profile;
-import xyz.kayaaa.xenon.shared.punishment.Punishment;
 import xyz.kayaaa.xenon.shared.punishment.PunishmentType;
-import xyz.kayaaa.xenon.shared.redis.packets.PunishmentUpdatePacket;
+import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
-import xyz.kayaaa.xenon.shared.service.impl.PunishmentService;
-import xyz.kayaaa.xenon.shared.tools.java.TimeUtils;
 import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 public class KickCommand extends CommandBase {

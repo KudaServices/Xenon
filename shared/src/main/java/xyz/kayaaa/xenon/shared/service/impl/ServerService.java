@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.apache.commons.lang3.Validate;
 import xyz.kayaaa.xenon.shared.XenonShared;
-import xyz.kayaaa.xenon.shared.redis.packets.ServerStatusPacket;
-import xyz.kayaaa.xenon.shared.redis.packets.ServerUpdatePacket;
+import xyz.kayaaa.xenon.shared.redis.packets.server.ServerStatusPacket;
+import xyz.kayaaa.xenon.shared.redis.packets.server.ServerUpdatePacket;
 import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.server.ServerType;
 import xyz.kayaaa.xenon.shared.service.Service;
@@ -84,10 +84,10 @@ public class ServerService extends Service {
             return newServer;
         });
 
-        updateServerData(server, packet.isOnline(), packet.getPlayers(), packet.getMax(), packet.isWhitelisted());
+        updateServerData(server, packet.isOnline(), packet.getPlayers(), packet.getMax(), packet.isWhitelisted(), packet.isSendStatus());
     }
 
-    public void updateServer(Server server) {
+    public void updateServer(Server server, boolean sendStatus) {
         Validate.notNull(server, "Server cannot be null");
 
         Server cached = find(server.getName()).orElseGet(() -> {
@@ -95,16 +95,15 @@ public class ServerService extends Service {
             return server;
         });
 
-        updateServerData(cached, server.isOnline(), server.getPlayers(), server.getMax(), server.isWhitelisted());
+        updateServerData(cached, server.isOnline(), server.getPlayers(), server.getMax(), server.isWhitelisted(), sendStatus);
     }
 
-    private void updateServerData(Server server, boolean online, int players, int max, boolean whitelisted) {
+    private void updateServerData(Server server, boolean online, int players, int max, boolean whitelisted, boolean sendStatus) {
         server.setOnline(online);
         server.setPlayers(players);
         server.setMax(max);
         server.setWhitelisted(whitelisted);
-
-        sendServerStatusPacket(server);
+        if (sendStatus) sendServerStatusPacket(server);
         logServerUpdate(server);
     }
 

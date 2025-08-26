@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.shared.redis.packets;
+package xyz.kayaaa.xenon.shared.redis.packets.server;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,17 +8,13 @@ import xyz.kayaaa.xenon.shared.redis.RedisPacket;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class ServerUpdatePacket implements RedisPacket {
-
+public class ServerStatusPacket implements RedisPacket {
     private String serverName;
-    private String serverType;
     private boolean online;
     private boolean whitelisted;
-    private int players;
-    private int max;
 
     @Override
     public String getID() {
-        return "SERVER_UPDATE";
+        return "SERVER_STATUS";
     }
 }

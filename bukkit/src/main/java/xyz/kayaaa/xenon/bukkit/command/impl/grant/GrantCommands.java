@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.command.impl;
+package xyz.kayaaa.xenon.bukkit.command.impl.grant;
 
 import com.jonahseguin.drink.annotation.*;
 import org.bukkit.entity.Player;

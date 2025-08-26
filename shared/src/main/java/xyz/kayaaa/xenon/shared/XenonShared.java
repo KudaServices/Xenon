@@ -13,7 +13,7 @@ import xyz.kayaaa.xenon.shared.redis.Redis;
 import xyz.kayaaa.xenon.shared.credentials.RedisCredentials;
 import xyz.kayaaa.xenon.shared.redis.RedisPacketRegistry;
 import xyz.kayaaa.xenon.shared.redis.listener.ServerUpdateListener;
-import xyz.kayaaa.xenon.shared.redis.packets.ServerUpdatePacket;
+import xyz.kayaaa.xenon.shared.redis.packets.server.ServerUpdatePacket;
 import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ServerService;
@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Getter
 public class XenonShared {
@@ -120,7 +119,7 @@ public class XenonShared {
         if (this.server != null) {
             this.server.setPlayers(0);
             this.server.setOnline(false);
-            ServiceContainer.getService(ServerService.class).updateServer(server);
+            ServiceContainer.getService(ServerService.class).updateServer(server, true);
         }
         ServiceContainer.shutdownServices();
         this.mongo.close();
@@ -130,7 +129,7 @@ public class XenonShared {
     public void setServer(Server server) {
         Validate.notNull(server, "Server cannot be null");
         this.server = server;
-        ServiceContainer.getService(ServerService.class).updateServer(server);
+        ServiceContainer.getService(ServerService.class).updateServer(server, true);
     }
 
     public File getFile() {

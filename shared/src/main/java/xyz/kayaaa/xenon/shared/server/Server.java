@@ -15,4 +15,8 @@ public class Server {
     private int players = 0;
     private int max = 0;
 
+    public String getStatus() {
+        return this.online && this.whitelisted ? "&eWhitelisted" : this.online ? "&aOnline" : "&cOffline";
+    }
+
 }
