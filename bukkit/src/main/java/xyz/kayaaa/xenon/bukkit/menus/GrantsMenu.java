@@ -7,9 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
-import xyz.kayaaa.xenon.bukkit.tools.GrantUtils;
-import xyz.kayaaa.xenon.bukkit.tools.InkMapping;
-import xyz.kayaaa.xenon.bukkit.tools.ItemBuilder;
+import xyz.kayaaa.xenon.bukkit.tools.xenon.GrantUtils;
+import xyz.kayaaa.xenon.bukkit.tools.spigot.ColorMapping;
+import xyz.kayaaa.xenon.bukkit.tools.spigot.ItemBuilder;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Button;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Menu;
 import xyz.kayaaa.xenon.shared.grant.Grant;
@@ -49,9 +49,10 @@ public class GrantsMenu extends Menu {
         Profile profile = ServiceContainer.getService(ProfileService.class).find(target);
         if (profile == null) return buttons;
         int i = 0;
-        for (Grant grant : profile.getGrants().stream().sorted(Comparator.comparing(grant -> ((Rank) grant.getData()).getWeight())).collect(Collectors.toList())) {
+        Comparator<Grant<Rank>> comparator = Comparator.<Grant<Rank>>comparingInt(grant -> grant.getData().getWeight()).reversed();
+        for (Grant<Rank> grant : profile.getRankGrants().stream().sorted(comparator).collect(Collectors.toList())) {
             while (isBorderSlot(i)) i++;
-            buttons.put(i++, new GrantButton(profile, (Grant<Rank>) grant));
+            buttons.put(i++, new GrantButton(profile, grant));
         }
         return buttons;
     }
@@ -66,7 +67,7 @@ public class GrantsMenu extends Menu {
         public ItemStack getButtonItem(Player player) {
             ItemBuilder builder = new ItemBuilder(Material.INK_SACK);
             builder.amount(1);
-            builder.durability(InkMapping.getItemDurability(grant.getData().getColor()));
+            builder.durability(ColorMapping.getItemDurability(grant.getData().getColor()));
             builder.name(grant.getData().getColor() + grant.getData().getName() + " &7- " + TimeUtils.formatDate(grant.getTimeCreated()) + (grant.isActive() ? " &a(Active)" : " &c(Inactive)"));
             List<String> lore = new ArrayList<>();
             lore.add("");

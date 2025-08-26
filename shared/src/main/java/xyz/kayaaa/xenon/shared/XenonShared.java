@@ -4,29 +4,37 @@ import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.Validate;
 import org.bson.Document;
 import redis.clients.jedis.JedisPubSub;
 import xyz.kayaaa.xenon.shared.mongo.Mongo;
-import xyz.kayaaa.xenon.shared.mongo.MongoCredentials;
+import xyz.kayaaa.xenon.shared.credentials.MongoCredentials;
 import xyz.kayaaa.xenon.shared.redis.Redis;
-import xyz.kayaaa.xenon.shared.redis.RedisCredentials;
+import xyz.kayaaa.xenon.shared.credentials.RedisCredentials;
+import xyz.kayaaa.xenon.shared.redis.RedisPacketRegistry;
+import xyz.kayaaa.xenon.shared.redis.listener.ServerUpdateListener;
+import xyz.kayaaa.xenon.shared.redis.packets.ServerUpdatePacket;
+import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
+import xyz.kayaaa.xenon.shared.service.impl.ServerService;
 import xyz.kayaaa.xenon.shared.tools.xenon.XenonLogger;
 
 import java.io.File;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Getter
 public class XenonShared {
 
     @Getter private static XenonShared instance;
-    @Getter @Setter private XenonLogger logger;
-
-    @Getter private final Gson gson = new Gson();
+    private final Gson gson = new Gson();
     private final Redis redis;
     private final Mongo mongo;
+
+    @Getter @Setter private XenonLogger logger;
+    @Getter private Server server;
 
     public XenonShared(XenonLogger logger, RedisCredentials redisCredentials, MongoCredentials mongoCredentials, String databaseName) {
         instance = this;
@@ -62,9 +70,10 @@ public class XenonShared {
                     } else if (message.equalsIgnoreCase("xenon2")) {
                         logger.log(true, "Xenon passed the Redis check!");
                         latch.countDown();
+                        redis.unlisten(this);
                     }
                 }
-            }, onReady -> {
+            }, v -> {
                 redis.sendMessage("xenon1");
             });
 
@@ -72,6 +81,9 @@ public class XenonShared {
                 logger.log(true, "Redis test failed: no response within timeout");
                 System.exit(0);
             } else {
+                RedisPacketRegistry.loadPackets();
+                redis.startPacketListener();
+                redis.registerListener(new ServerUpdatePacket(), new ServerUpdateListener());
                 ServiceContainer.loadClass();
             }
         } catch (Exception e) {
@@ -92,6 +104,7 @@ public class XenonShared {
             if (found != null && found.getString("value").equalsIgnoreCase("ping")) {
                 logger.log(true, "Xenon passed the MongoDB check!");
                 collection.deleteOne(new Document("_id", testDoc.getString("_id")));
+                collection.drop();
             } else {
                 logger.log(true, "MongoDB test failed: inserted document not found");
                 System.exit(0);
@@ -104,8 +117,20 @@ public class XenonShared {
     }
 
     public void shutdown() {
+        if (this.server != null) {
+            this.server.setPlayers(0);
+            this.server.setOnline(false);
+            ServiceContainer.getService(ServerService.class).updateServer(server);
+        }
+        ServiceContainer.shutdownServices();
         this.mongo.close();
         this.redis.close();
+    }
+
+    public void setServer(Server server) {
+        Validate.notNull(server, "Server cannot be null");
+        this.server = server;
+        ServiceContainer.getService(ServerService.class).updateServer(server);
     }
 
     public File getFile() {
@@ -113,39 +138,6 @@ public class XenonShared {
             return new File(XenonShared.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         } catch (Exception e) {
             return new File(".");
-        }
-    }
-
-    private static class XenonDefaultLogger implements XenonLogger {
-
-        @Override
-        public void log(boolean prefix, String message) {
-            System.out.println((prefix ? "[Xenon - INFO] " : "") + message);
-        }
-
-        @Override
-        public void log(String message) {
-            this.log(true, message);
-        }
-
-        @Override
-        public void warn(boolean prefix, String message) {
-            System.out.println((prefix ? "[Xenon - WARNING] " : "") + message);
-        }
-
-        @Override
-        public void warn(String message) {
-            this.warn(true, message);
-        }
-
-        @Override
-        public void error(boolean prefix, String message) {
-            System.out.println((prefix ? "[Xenon - ERROR] " : "") + message);
-        }
-
-        @Override
-        public void error(String message) {
-            this.error(true, message);
         }
     }
 }

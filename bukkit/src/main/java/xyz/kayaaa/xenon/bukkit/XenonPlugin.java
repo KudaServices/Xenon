@@ -4,23 +4,33 @@ import com.jonahseguin.drink.Drink;
 import com.jonahseguin.drink.command.CommandService;
 import com.jonahseguin.drink.command.DrinkCommandContainer;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.spigotmc.SpigotConfig;
 import xyz.kayaaa.xenon.bukkit.command.CommandBase;
 import xyz.kayaaa.xenon.bukkit.listener.PlayerListener;
 import xyz.kayaaa.xenon.bukkit.provider.RankProvider;
+import xyz.kayaaa.xenon.bukkit.redis.MessageListener;
+import xyz.kayaaa.xenon.bukkit.redis.PunishmentUpdateListener;
+import xyz.kayaaa.xenon.bukkit.redis.ServerStatusListener;
 import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitProfileService;
 import xyz.kayaaa.xenon.bukkit.task.GrantDurationTask;
-import xyz.kayaaa.xenon.bukkit.tools.XenonBukkitLogger;
+import xyz.kayaaa.xenon.bukkit.tools.xenon.XenonBukkitLogger;
 import xyz.kayaaa.xenon.bukkit.tools.menu.MenuListener;
 import xyz.kayaaa.xenon.shared.XenonShared;
-import xyz.kayaaa.xenon.shared.mongo.MongoCredentials;
+import xyz.kayaaa.xenon.shared.credentials.MongoCredentials;
 import xyz.kayaaa.xenon.shared.rank.Rank;
-import xyz.kayaaa.xenon.shared.redis.RedisCredentials;
+import xyz.kayaaa.xenon.shared.credentials.RedisCredentials;
+import xyz.kayaaa.xenon.shared.redis.packets.MessagePacket;
+import xyz.kayaaa.xenon.shared.redis.packets.PunishmentUpdatePacket;
+import xyz.kayaaa.xenon.shared.redis.packets.ServerStatusPacket;
+import xyz.kayaaa.xenon.shared.server.Server;
+import xyz.kayaaa.xenon.shared.server.ServerType;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.tools.java.ClassUtils;
-import xyz.kayaaa.xenon.bukkit.tools.ConfigUtil;
+import xyz.kayaaa.xenon.bukkit.tools.spigot.ConfigUtil;
 
 @Getter
 public class XenonPlugin extends JavaPlugin {
@@ -32,9 +42,31 @@ public class XenonPlugin extends JavaPlugin {
     private XenonShared shared;
     private CommandService drink;
 
+    private boolean joinable = false;
+
     @Override
     public void onEnable() {
         instance = this;
+
+        if (Bukkit.getServer().getOnlineMode() && SpigotConfig.bungee || !Bukkit.getServer().getOnlineMode() && !SpigotConfig.bungee) {
+            this.shared.getLogger().warn("&c** --------------------------------------- **");
+            this.shared.getLogger().warn("&c&lSERVER CONFIGURATION ISSUE!");
+            this.shared.getLogger().warn("&cSomething is wrong with your Bukkit config.");
+            this.shared.getLogger().warn("&cYou probably did one of the following:");
+            this.shared.getLogger().warn("");
+            this.shared.getLogger().warn("&c1. Enabled bungee on spigot.yml, and left");
+            this.shared.getLogger().warn("&c  online-mode enabled on server.properties");
+            this.shared.getLogger().warn("");
+            this.shared.getLogger().warn("&c2. Disabled bungee on spigot.yml, and left");
+            this.shared.getLogger().warn("&c  online-mode disabled on server.properties");
+            this.shared.getLogger().warn("");
+            this.shared.getLogger().warn("&cEither way, Xenon &c&lDOES NOT &csupport");
+            this.shared.getLogger().warn("&cthis type of server configuration. Please fix");
+            this.shared.getLogger().warn("&cyour configurations immediately!");
+            this.shared.getLogger().warn("&c** --------------------------------------- **");
+            System.exit(0);
+        }
+
         mainConfig = ConfigUtil.createConfig("config");
         String redisAddress = mainConfig.getString("redis.address");
         int redisPort = mainConfig.getInt("redis.port");
@@ -74,6 +106,26 @@ public class XenonPlugin extends JavaPlugin {
         this.setupServices();
         this.setupTasks();
         this.setupListeners();
+        this.setupServer();
+    }
+
+    private void setupServer() {
+        if (this.mainConfig.getString("server.name") == null || this.mainConfig.getString("server.type") == null) {
+            this.shared.getLogger().log("Server configuration is broken, please fix your config.yml!");
+            System.exit(0);
+        }
+
+        if (this.mainConfig.getString("server.name").equalsIgnoreCase("unconfigured") && this.mainConfig.getString("server.type").equalsIgnoreCase("default")) {
+            this.shared.getLogger().log("Please configure the server in your config.yml!");
+            System.exit(0);
+        }
+
+        this.joinable = true;
+        Server server = new Server(this.mainConfig.getString("server.name"), ServerType.valueOf(this.mainConfig.getString("server.type")));
+        server.setOnline(true);
+        server.setWhitelisted(Bukkit.hasWhitelist());
+        server.setMax(Bukkit.getMaxPlayers());
+        this.shared.setServer(server);
     }
 
     private void setupCommands() {
@@ -102,6 +154,9 @@ public class XenonPlugin extends JavaPlugin {
     }
 
     private void setupListeners() {
+        this.shared.getRedis().registerListener(new MessagePacket(), new MessageListener());
+        this.shared.getRedis().registerListener(new ServerStatusPacket(), new ServerStatusListener());
+        this.shared.getRedis().registerListener(new PunishmentUpdatePacket(), new PunishmentUpdateListener());
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         this.getServer().getPluginManager().registerEvents(new MenuListener(), this);
     }
@@ -109,7 +164,6 @@ public class XenonPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         this.shared.getLogger().log("Shutting down Xenon!");
-        ServiceContainer.shutdownServices();
         this.shared.shutdown();
     }
 }

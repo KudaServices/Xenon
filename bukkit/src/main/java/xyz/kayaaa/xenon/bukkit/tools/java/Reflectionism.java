@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.tools;
+package xyz.kayaaa.xenon.bukkit.tools.java;
 
 import xyz.kayaaa.xenon.bukkit.XenonPlugin;
 

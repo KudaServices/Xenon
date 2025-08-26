@@ -66,18 +66,14 @@ public class ArgumentParser {
         Object[] arguments = new Object[command.getMethod().getParameterCount()];
         for (int i = 0; i < command.getParameters().getParameters().length; i++) {
             CommandParameter param = command.getParameters().getParameters()[i];
-            boolean skipOptional = false; // dont complete exceptionally if true if the arg is missing
+            boolean skipOptional = false;
             DrinkProvider<?> provider = command.getProviders()[i];
             String value = null;
 
             if (param.isFlag()) {
                 Flag flag = param.getFlag();
                 CommandFlag commandFlag = args.getFlags().get(flag.value());
-                if (commandFlag != null) {
-                    value = commandFlag.getValue();
-                } else {
-                    value = null;
-                }
+                value = commandFlag != null ? commandFlag.getValue() : null;
             } else {
                 if (!args.hasNext()) {
                     if (provider.doesConsumeArgument()) {

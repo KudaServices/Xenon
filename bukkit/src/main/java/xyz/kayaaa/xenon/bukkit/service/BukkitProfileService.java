@@ -22,12 +22,12 @@ public class BukkitProfileService extends Service {
     }
 
     @Override
-    public void enable() throws Exception {
+    public void enable() {
         this.profiles = new ArrayList<>();
     }
 
     @Override
-    public void disable() throws Exception {
+    public void disable() {
         this.profiles.clear();
         this.profiles = null;
     }

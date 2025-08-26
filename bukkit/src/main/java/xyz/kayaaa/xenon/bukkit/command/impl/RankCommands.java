@@ -96,6 +96,65 @@ public class RankCommands extends CommandBase {
         player.sendMessage(CC.translate(rank.getPrefix() + "Test" + suffix + "&7: &fHey!"));
     }
 
+    @Command(name = "staff", desc = "Sets a rank's staff mode.")
+    @Require("xenon.rank.staff")
+    public void staff(@Sender Player player, Rank rank) {
+        if (rank == null) {
+            player.sendMessage(CC.translate("&cThis rank doesn't exist."));
+            return;
+        }
+
+        rank.setStaff(!rank.isStaff());
+        ServiceContainer.getService(RankService.class).save(rank);
+        player.sendMessage(CC.translate("&aYou set " + rank.getName() + "'s staff mode to " + rank.isStaff() + "!"));
+    }
+
+    @Command(name = "hidden", desc = "Sets a rank's hidden mode.")
+    @Require("xenon.rank.hidden")
+    public void hidden(@Sender Player player, Rank rank) {
+        if (rank == null) {
+            player.sendMessage(CC.translate("&cThis rank doesn't exist."));
+            return;
+        }
+
+        rank.setHidden(!rank.isHidden());
+        ServiceContainer.getService(RankService.class).save(rank);
+        player.sendMessage(CC.translate("&aYou set " + rank.getName() + "'s hiddden mode to " + rank.isHidden() + "!"));
+    }
+
+    @Command(name = "purchasable", desc = "Sets a rank's purchasable mode.")
+    @Require("xenon.rank.purchasable")
+    public void purchasable(@Sender Player player, Rank rank) {
+        if (rank == null) {
+            player.sendMessage(CC.translate("&cThis rank doesn't exist."));
+            return;
+        }
+
+        rank.setPurchasable(!rank.isPurchasable());
+        ServiceContainer.getService(RankService.class).save(rank);
+        player.sendMessage(CC.translate("&aYou set " + rank.getName() + "'s purchasable mode to " + rank.isPurchasable() + "!"));
+    }
+
+    @Command(name = "default", desc = "Sets a rank's default mode.")
+    @Require("xenon.rank.default")
+    public void rankDefault(@Sender Player player, Rank rank) {
+        if (rank == null) {
+            player.sendMessage(CC.translate("&cThis rank doesn't exist."));
+            return;
+        }
+
+        RankService service = ServiceContainer.getService(RankService.class);
+        Rank defaultRank = service.getRanks().stream().filter(Rank::isDefaultRank).findFirst().orElse(null);
+        if (defaultRank != null && rank != defaultRank) {
+            player.sendMessage(CC.translate("&c" + defaultRank.getColor() + defaultRank.getName() + " &cis the default rank, please disable it's default mode before updating " + rank.getColor() + rank.getName() + "!"));
+            return;
+        }
+
+        rank.setDefaultRank(!rank.isDefaultRank());
+        service.save(rank);
+        player.sendMessage(CC.translate("&aYou set " + rank.getName() + "'s default mode to " + rank.isDefaultRank() + "!"));
+    }
+
     @Command(name = "weight", desc = "Sets a rank's weight.", usage = "<weight>")
     @Require("xenon.rank.weight")
     public void weight(@Sender Player player, Rank rank, int weight) {
@@ -146,7 +205,7 @@ public class RankCommands extends CommandBase {
         player.sendMessage(CC.translate("&fSuffix: " + (rank.getSuffix().isEmpty() ? "&cEmpty" : player.getName() + rank.getSuffix())));
         player.sendMessage(CC.translate("&fWeight: &9" + rank.getWeight()));
         player.sendMessage(" ");
-        player.sendMessage(CC.translate("&9&lRank Booleans:"));
+        player.sendMessage(CC.translate("&9&lRank Properties:"));
         player.sendMessage(CC.translate("&fStaff: &9" + rank.isStaff()));
         player.sendMessage(CC.translate("&fDefault: &9" + rank.isDefaultRank()));
         player.sendMessage(CC.translate("&fHidden: &9" + rank.isHidden()));
@@ -156,9 +215,7 @@ public class RankCommands extends CommandBase {
         if (rank.getPermissions().isEmpty()) {
             player.sendMessage(CC.translate("&cNo permissions!"));
         } else {
-            for (String permission : rank.getPermissions()) {
-                player.sendMessage(CC.translate("&f- &9" + permission));
-            }
+            rank.getPermissions().forEach(permission -> player.sendMessage(CC.translate("&f- &9" + permission)));
         }
         player.sendMessage(" ");
     }

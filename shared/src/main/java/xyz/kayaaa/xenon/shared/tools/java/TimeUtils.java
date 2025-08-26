@@ -9,6 +9,15 @@ import java.util.TimeZone;
 @UtilityClass
 public class TimeUtils {
 
+    public boolean isTime(String input) {
+        try {
+            parseTime(input);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public long parseTime(String input) {
         if (input == null || input.isEmpty()) {
             throw new IllegalArgumentException("Invalid time!");

@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.shared.mongo;
+package xyz.kayaaa.xenon.shared.credentials;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

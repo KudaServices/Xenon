@@ -33,7 +33,17 @@ public class GrantCommands extends CommandBase {
         }
 
         GrantService service = ServiceContainer.getService(GrantService.class);
-        long duration = TimeUtils.parseTime(time);
+        boolean isPermanent = time.equalsIgnoreCase("perm") || time.equalsIgnoreCase("permanent");
+        long duration = isPermanent ? -1 : TimeUtils.parseTime(time);
+        if (!isPermanent && !TimeUtils.isTime(time)) {
+            player.sendMessage(CC.translate("&cDuration needs to be a valid time unit."));
+            return;
+        }
+
+        if (!isPermanent && duration < 0 || duration == Long.MAX_VALUE) {
+            player.sendMessage(CC.translate("&cDuration needs to be a valid time."));
+            return;
+        }
         Grant<Rank> grant = service.createGrant(rank, sender.getUniqueId(), duration, reason == null ? "None" : reason);
         profile.addGrant(grant);
         player.sendMessage(CC.translate("&aYou have been granted " + rank.getColor() + rank.getName() + "&a!"));

@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter @Setter @RequiredArgsConstructor
 public class Grant<T extends Serializable> {
 
-    private final UUID uuid;
+    private final UUID UUID;
     private final T data;
     private final UUID author;
 
@@ -32,9 +32,13 @@ public class Grant<T extends Serializable> {
         return System.currentTimeMillis() > this.timeCreated + this.duration;
     }
 
+    public String getReason() {
+        return this.reason == null ? "Unspecified" : this.reason;
+    }
+
     public Document toDocument() {
         Document doc = new Document()
-                .append("uuid", this.uuid.toString())
+                .append("uuid", this.UUID.toString())
                 .append("author", this.author.toString())
                 .append("duration", this.duration)
                 .append("timeCreated", this.timeCreated)
@@ -46,7 +50,10 @@ public class Grant<T extends Serializable> {
 
         if (this.data != null) {
             doc.append("dataType", this.data.getType());
-            doc.append("dataContent", this.data.getID());
+            doc.append("dataID", this.data.getID());
+            if (!data.getType().equalsIgnoreCase("rank")) {
+                doc.append("dataContent", this.data.toDocument());
+            }
         }
 
         return doc;

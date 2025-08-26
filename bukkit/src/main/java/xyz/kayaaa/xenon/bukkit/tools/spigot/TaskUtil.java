@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.tools;
+package xyz.kayaaa.xenon.bukkit.tools.spigot;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;

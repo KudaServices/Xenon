@@ -41,6 +41,16 @@ public class Rank implements Serializable {
         return "rank";
     }
 
+    @Override
+    public String getExpiryMessage() {
+        return "&aYour " + color + name + " rank has expired!";
+    }
+
+    @Override
+    public String getRemovalMessage() {
+        return "&aYour " + color + name + " &arank has been removed!";
+    }
+
     public void setPermission(String permission) {
         if (permission == null || permission.isEmpty()) return;
 

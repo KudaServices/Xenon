@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.tools;
+package xyz.kayaaa.xenon.bukkit.tools.xenon;
 
 import org.bukkit.Bukkit;
 import xyz.kayaaa.xenon.shared.tools.string.CC;

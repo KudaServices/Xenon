@@ -12,6 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import xyz.kayaaa.xenon.bukkit.XenonPlugin;
+import xyz.kayaaa.xenon.bukkit.tools.menu.button.BackButton;
 import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 @Getter
@@ -27,6 +28,8 @@ public abstract class Menu {
 	private boolean closedByMenu = false;
 	private boolean placeholder = false;
 	private Button placeholderButton = Button.placeholder(Material.STAINED_GLASS_PANE, (byte) 15, " ");
+
+	private boolean hasBackButton = false;
 
 	private ItemStack createItemStack(Player player, Button button) {
 		ItemStack item = button.getButtonItem(player);
@@ -144,6 +147,14 @@ public abstract class Menu {
 			if (!isBorderSlot(i)) continue;
 			buttons.put(i, this.placeholderButton);
 		}
+	}
+
+	public void addBackButton(Map<Integer, Button> buttons, Menu menu) {
+		if (this.hasBackButton) {
+			return;
+		}
+		buttons.put(this.getSize() - 5, new BackButton(menu));
+		this.hasBackButton = true;
 	}
 
 }

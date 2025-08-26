@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.tools;
+package xyz.kayaaa.xenon.bukkit.tools.spigot;
 
 import lombok.experimental.UtilityClass;
 import org.bukkit.configuration.InvalidConfigurationException;

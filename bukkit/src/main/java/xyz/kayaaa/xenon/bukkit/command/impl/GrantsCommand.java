@@ -15,7 +15,7 @@ public class GrantsCommand extends CommandBase {
         super("grants", false);
     }
 
-    @Command(name = "", desc = "View all of a player's grants", usage = "<target>")
+    @Command(name = "", desc = "View all grants of a player", usage = "<target>")
     @Require("xenon.grant.view")
     public void grants(@Sender Player player, @OptArg OfflinePlayer target) {
         if (target == null) {

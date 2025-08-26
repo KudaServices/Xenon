@@ -2,10 +2,9 @@ package xyz.kayaaa.xenon.shared.service;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.Validate;
 import xyz.kayaaa.xenon.shared.XenonShared;
 import xyz.kayaaa.xenon.shared.tools.java.ClassUtils;
-import xyz.kayaaa.xenon.shared.tools.java.Validation;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,8 +34,8 @@ public class ServiceContainer {
     private static final Map<Class<? extends Service>, Service> services;
 
     private Service newServiceInstance(Class<?> clazz) {
-        Validation.notNull(clazz, "Class cannot be null");
-        Validation.isTrue(Service.class.isAssignableFrom(clazz), "Class " + clazz.getName() + " is not a Repository.");
+        Validate.notNull(clazz, "Class cannot be null");
+        Validate.isTrue(Service.class.isAssignableFrom(clazz), "Class " + clazz.getName() + " is not a Repository.");
 
         try {
             return (Service) clazz.getDeclaredConstructor().newInstance();
@@ -63,8 +62,8 @@ public class ServiceContainer {
      * @throws IllegalArgumentException if the service is null
      */
     public void registerService(Service service) {
-        Validation.notNull(service, "Service cannot be null");
-        Validation.notNull(service.getClass(), "Service class cannot be null");
+        Validate.notNull(service, "Service cannot be null");
+        Validate.notNull(service.getClass(), "Service class cannot be null");
         services.put(service.getClass(), service);
         service.setEnabled();
     }
@@ -89,10 +88,10 @@ public class ServiceContainer {
      * @throws IllegalArgumentException if the service class is null / not found in the container
      */
     public <T extends Service> T getService(Class<T> serviceClass) {
-        Validation.notNull(serviceClass, "Service class cannot be null");
-        Validation.isFalse(serviceClass == Service.class, "Cannot retrieve Service.class directly. Use a specific service class.");
-        Validation.isFalse(serviceClass == NoActionService.class, "Cannot retrieve NoActionService.class directly. Use a specific service class.");
-        Validation.notNull(services.get(serviceClass), "Service class " + serviceClass.getName() + " is not registered.");
+        Validate.notNull(serviceClass, "Service class cannot be null");
+        Validate.isTrue(serviceClass != Service.class, "Cannot retrieve Service.class directly. Use a specific service class.");
+        Validate.isTrue(serviceClass != NoActionService.class, "Cannot retrieve NoActionService.class directly. Use a specific service class.");
+        Validate.notNull(services.get(serviceClass), "Service class " + serviceClass.getName() + " is not registered.");
         Service service = services.get(serviceClass);
         return serviceClass.cast(service);
     }
