@@ -26,7 +26,7 @@ public class ServersCommand extends CommandBase {
             new ServersMenu().openMenu((Player) sender);
         } else {
             sender.sendMessage(CC.translate("&9All servers: "));
-            ServiceContainer.getService(ServerService.class).getServers().forEach(server -> sender.sendMessage(CC.translate("&7- &9" + server.getName() + " &7(" + server.getStatus() + " &7- &9" + server.getPlayers() + "/" + server.getMax() + ")")));
+            ServiceContainer.getService(ServerService.class).getServers().forEach(server -> sender.sendMessage(CC.translate("&7- &9" + server.getName() + " &7(" + server.getStatus() + " &7- &9" + server.getPlayers() + "/" + server.getMax() + "&7)")));
         }
     }
 

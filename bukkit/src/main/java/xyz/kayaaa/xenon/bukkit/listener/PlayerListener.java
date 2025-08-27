@@ -15,7 +15,7 @@ import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.tools.java.TimeUtils;
 import xyz.kayaaa.xenon.shared.tools.string.CC;
-import xyz.kayaaa.xenon.shared.tools.string.StringSplitter;
+import xyz.kayaaa.xenon.shared.tools.string.StringHelper;
 
 import java.util.Arrays;
 
@@ -69,7 +69,7 @@ public class PlayerListener implements Listener {
             event.setCancelled(true);
             String expire = punishmentGrant.getDuration() == -1 ? "Never" : TimeUtils.formatDate(punishmentGrant.getTimeCreated() + punishmentGrant.getDuration());
             String message = PunishmentType.MUTE.format(punishmentGrant.getReason(), expire);
-            Arrays.stream(StringSplitter.splitByNewline(message)).forEach(player::sendMessage);
+            Arrays.stream(StringHelper.splitByNewline(message)).forEach(player::sendMessage);
         }
 
         event.setFormat(CC.translate(profile.getCurrentGrant().getData().getPrefix() + (profile.getColor() != null && !profile.getColor().isEmpty() ? profile.getColor() : "") + player.getName() + profile.getCurrentGrant().getData().getSuffix() + "&7: &f" + event.getMessage()));

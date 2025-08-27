@@ -5,6 +5,7 @@ import org.apache.commons.lang3.Validate;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.JedisPubSubBase;
+import redis.clients.jedis.exceptions.JedisAccessControlException;
 import xyz.kayaaa.xenon.shared.XenonShared;
 import xyz.kayaaa.xenon.shared.redis.listener.PacketListener;
 
@@ -50,17 +51,18 @@ public class Redis {
     }
 
     public static synchronized Redis getInstance(String redisHost, int redisPort, String channel) {
-        if (instance == null) {
-            instance = new Redis(redisHost, redisPort, channel);
-        }
-        return instance;
+        return getInstance(redisHost, redisPort, null, channel);
     }
 
     public static synchronized Redis getInstance(String redisHost, int redisPort, String password, String channel) {
-        if (instance == null) {
-            instance = new Redis(redisHost, redisPort, password, channel);
+        try {
+            if (instance == null) {
+                instance = new Redis(redisHost, redisPort, password, channel);
+            }
+            return instance;
+        } catch (Exception e) {
+            return null;
         }
-        return instance;
     }
 
     public void sendMessage(String message) {
@@ -146,15 +148,18 @@ public class Redis {
 
     public void handlePacket(RedisPacket packet) {
         List<PacketListener<RedisPacket>> packetListeners = this.packetListeners.get(packet.getID());
-        if (packetListeners != null) {
-            packetListeners.forEach(l -> {
-                XenonShared.getInstance().getLogger().log("Handling packet " + packet.getID() + " using " + l.getClass().getSimpleName());
-                try {
-                    l.accept(packet);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+        if (packetListeners == null || packetListeners.isEmpty()) {
+            XenonShared.getInstance().getLogger().warn("No listeners for " + packet.getID() + " were registered, ignoring...");
+            return;
         }
+
+        packetListeners.forEach(l -> {
+            XenonShared.getInstance().getLogger().log("Handling packet " + packet.getID() + " using " + l.getClass().getSimpleName());
+            try {
+                l.accept(packet);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

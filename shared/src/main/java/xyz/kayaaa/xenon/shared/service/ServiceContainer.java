@@ -47,12 +47,14 @@ public class ServiceContainer {
     @SneakyThrows
     private void registerServices() {
         List<Class<?>> classes = ClassUtils.getClasses(XenonShared.getInstance().getFile(), Service.class.getPackage().getName() + ".impl");
-        XenonShared.getInstance().getLogger().log("Found " + classes.size() + " services.");
+        XenonShared.getInstance().getLogger().log("Found " + classes.size() + " internal services.");
 
         classes.stream()
                 .filter(c -> !c.getName().contains("$"))
                 .map(ServiceContainer::newServiceInstance)
                 .forEach(ServiceContainer::registerService);
+        XenonShared.getInstance().getLogger().log("&eFinished registering all internal services!");
+        XenonShared.getInstance().getLogger().log("&eAny service registered below this, is external.");
     }
 
     /**

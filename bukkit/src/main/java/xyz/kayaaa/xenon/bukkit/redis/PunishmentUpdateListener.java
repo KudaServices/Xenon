@@ -13,12 +13,11 @@ import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.tools.java.TimeUtils;
-import xyz.kayaaa.xenon.shared.tools.string.StringSplitter;
+import xyz.kayaaa.xenon.shared.tools.string.StringHelper;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePacket> {
 
@@ -57,6 +56,7 @@ public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePac
                 String duration = packet.getDuration() == -1
                         ? " &apermanently for "
                         : " &atemporarily &7(" + TimeUtils.formatTime(packet.getDuration()) + ") &afor ";
+                if (type == PunishmentType.KICK) duration = " &afor ";
                 ServerUtils.sendMessage(author + " &ahas " + type.getType() + " " + target + duration + packet.getReason() + "!", player -> {
                     Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
                     if (profile == null) return false;
@@ -95,7 +95,7 @@ public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePac
             if (!packet.isRemoved() && type == PunishmentType.MUTE) {
                 String expire = packet.getDuration() == -1 ? "Never" : TimeUtils.formatDate(packet.getTimeCreated() + packet.getDuration());
                 String message = PunishmentType.MUTE.format(packet.getReason(), expire);
-                Arrays.stream(StringSplitter.splitByNewline(message)).forEach(player::sendMessage);
+                Arrays.stream(StringHelper.splitByNewline(message)).forEach(player::sendMessage);
             }
         });
     }

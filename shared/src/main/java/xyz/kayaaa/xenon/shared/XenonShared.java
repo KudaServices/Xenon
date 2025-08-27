@@ -38,11 +38,6 @@ public class XenonShared {
     public XenonShared(XenonLogger logger, RedisCredentials redisCredentials, MongoCredentials mongoCredentials, String databaseName) {
         instance = this;
         this.logger = logger;
-        if (redisCredentials.getPassword() != null && !redisCredentials.getPassword().isEmpty()) {
-            this.redis = Redis.getInstance(redisCredentials.getHostname(), redisCredentials.getPort(), redisCredentials.getPassword(), "Xenon");
-        } else {
-            this.redis = Redis.getInstance(redisCredentials.getHostname(), redisCredentials.getPort(), "Xenon");
-        }
 
         if (mongoCredentials.getUsername() != null && !mongoCredentials.getUsername().isEmpty()) {
             this.mongo = Mongo.getInstance(mongoCredentials.getHostname(), mongoCredentials.getPort(),
@@ -52,13 +47,28 @@ public class XenonShared {
             this.mongo = Mongo.getInstance(mongoCredentials.getHostname(), mongoCredentials.getPort(), databaseName);
         }
 
+        if (redisCredentials.getPassword() != null && !redisCredentials.getPassword().isEmpty()) {
+            this.redis = Redis.getInstance(redisCredentials.getHostname(), redisCredentials.getPort(), redisCredentials.getPassword(), "Xenon");
+        } else {
+            this.redis = Redis.getInstance(redisCredentials.getHostname(), redisCredentials.getPort(), "Xenon");
+        }
+
+        if (mongo == null) {
+            this.logger.error("MongoDB connection failed, stopping...");
+            System.exit(0);
+        }
+
+        if (redis == null) {
+            this.logger.error("Redis connection failed, stopping...");
+            System.exit(0);
+        }
+
         this.mongoTest();
         this.redisTest();
     }
 
     private void redisTest() {
         try {
-            logger.log("Redis test started!");
             CountDownLatch latch = new CountDownLatch(1);
 
             redis.listen(new JedisPubSub() {
@@ -67,7 +77,7 @@ public class XenonShared {
                     if (message.equalsIgnoreCase("xenon1")) {
                         redis.sendMessage("xenon2");
                     } else if (message.equalsIgnoreCase("xenon2")) {
-                        logger.log(true, "Xenon passed the Redis check!");
+                        logger.log("&aXenon passed the Redis check!");
                         latch.countDown();
                         redis.unlisten(this);
                     }
@@ -77,7 +87,7 @@ public class XenonShared {
             });
 
             if (!latch.await(5, TimeUnit.SECONDS)) {
-                logger.log(true, "Redis test failed: no response within timeout");
+                logger.error("Redis test failed: no response within timeout");
                 System.exit(0);
             } else {
                 RedisPacketRegistry.loadPackets();
@@ -86,14 +96,13 @@ public class XenonShared {
                 ServiceContainer.loadClass();
             }
         } catch (Exception e) {
-            logger.log(true, "Redis test failed: " + e.getMessage());
+            logger.error("Redis test failed: " + e.getMessage());
             System.exit(0);
         }
     }
 
     private void mongoTest() {
         try {
-            logger.log("MongoDB test started!");
             MongoCollection<Document> collection = mongo.getDatabase().getCollection("xenon_test");
             Document testDoc = new Document("_id", UUID.randomUUID().toString()).append("value", "ping");
 
@@ -101,16 +110,16 @@ public class XenonShared {
             Document found = collection.find(new Document("_id", testDoc.getString("_id"))).first();
 
             if (found != null && found.getString("value").equalsIgnoreCase("ping")) {
-                logger.log(true, "Xenon passed the MongoDB check!");
+                logger.log("&aXenon passed the MongoDB check!");
                 collection.deleteOne(new Document("_id", testDoc.getString("_id")));
                 collection.drop();
             } else {
-                logger.log(true, "MongoDB test failed: inserted document not found");
+                logger.error("MongoDB test failed: inserted document not found");
                 System.exit(0);
             }
 
         } catch (Exception e) {
-            logger.log(true, "MongoDB test failed: " + e.getMessage());
+            logger.error("MongoDB test failed: " + e.getMessage());
             System.exit(0);
         }
     }
