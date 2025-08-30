@@ -1,18 +1,18 @@
 package xyz.kayaaa.xenon.bukkit;
 
-import com.jonahseguin.drink.Drink;
-import com.jonahseguin.drink.command.CommandService;
-import com.jonahseguin.drink.command.DrinkCommandContainer;
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.BukkitCommandManager;
+import co.aikar.commands.InvalidCommandArgument;
+import co.aikar.commands.PaperCommandManager;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.spigotmc.SpigotConfig;
-import xyz.kayaaa.xenon.bukkit.command.CommandBase;
 import xyz.kayaaa.xenon.bukkit.listener.PlayerListener;
 import xyz.kayaaa.xenon.bukkit.listener.ServerListener;
-import xyz.kayaaa.xenon.bukkit.provider.RankProvider;
-import xyz.kayaaa.xenon.bukkit.provider.ServerProvider;
 import xyz.kayaaa.xenon.bukkit.redis.*;
 import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitProfileService;
@@ -32,11 +32,13 @@ import xyz.kayaaa.xenon.shared.redis.packets.staff.StaffStatusPacket;
 import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.server.ServerType;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
+import xyz.kayaaa.xenon.shared.service.impl.RankService;
 import xyz.kayaaa.xenon.shared.service.impl.ServerService;
 import xyz.kayaaa.xenon.shared.tools.java.ClassUtils;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.ConfigUtil;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Getter
 public class XenonPlugin extends JavaPlugin {
@@ -46,7 +48,6 @@ public class XenonPlugin extends JavaPlugin {
 
     private YamlConfiguration mainConfig;
     private XenonShared shared;
-    private CommandService drink;
 
     private boolean joinable = false;
 
@@ -142,20 +143,38 @@ public class XenonPlugin extends JavaPlugin {
     }
 
     private void setupCommands() {
-        drink = Drink.get(this);
-        drink.bind(Rank.class).toProvider(new RankProvider());
-        drink.bind(Server.class).toProvider(new ServerProvider());
-        ClassUtils.getClasses(getFile(), this.getClass().getPackage().getName() + ".command.impl").stream().filter(c -> !c.getName().contains("$")).forEach(c -> {
+        PaperCommandManager manager = new PaperCommandManager(this);
+        manager.enableUnstableAPI("help");
+        manager.getCommandContexts().registerContext(Rank.class, c -> {
+            String input = c.popFirstArg();
+            Rank rank = ServiceContainer.getService(RankService.class).getRank(input);
+            if (rank == null) throw new InvalidCommandArgument("Rank not found!");
+            return rank;
+        });
+        manager.getCommandContexts().registerContext(Server.class, c -> {
+            String input = c.popFirstArg();
+            Optional<Server> server = ServiceContainer.getService(ServerService.class).find(input);
+            if (!server.isPresent()) throw new InvalidCommandArgument("Server not found!");
+            return server.get();
+        });
+
+        manager.getCommandCompletions().registerCompletion("ranks", c -> ServiceContainer.getService(RankService.class).getRanks().stream().map(Rank::getName).collect(Collectors.toList()));
+        manager.getCommandCompletions().registerCompletion("servers", c -> ServiceContainer.getService(ServerService.class).getServers().stream().map(Server::getName).collect(Collectors.toList()));
+        manager.getCommandCompletions().registerCompletion("times", c -> java.util.Arrays.asList(
+                "perm", "permanent",
+                "1m", "5m", "10m", "30m",
+                "1h", "6h", "12h",
+                "1d", "7d", "30d"
+        ));
+        ClassUtils.getClasses(getFile(), this.getClass().getPackage().getName() + ".command").stream().filter(c -> !c.getName().contains("$")).forEach(c -> {
             try {
-                CommandBase command = (CommandBase) c.newInstance();
-                DrinkCommandContainer container = drink.register(command, command.getName(), command.getAliases());
-                container.setDefaultCommandIsHelp(command.isDefaultHelp());
+                manager.registerCommand((BaseCommand) c.newInstance());
             } catch (Exception exception) {
                 this.getLogger().info("Error while loading the command " + c.getSimpleName());
                 exception.printStackTrace();
             }
         });
-        drink.registerCommands();
+
     }
 
     private void setupServices() {

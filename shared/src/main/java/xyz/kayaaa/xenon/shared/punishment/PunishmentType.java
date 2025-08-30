@@ -17,7 +17,7 @@ public enum PunishmentType {
     KICK("kicked", "&cYou were kicked from the server!\n&cReason: {0}\n\n&cContact staff if you think this is a mistake."),
     MUTE("muted", "&cYou are muted from the server!\n\n&cReason: {0}\n&cExpires: {1}\n\n&cContact staff if you think this is a mistake."),
     BAN("banned", "&cYou are banned from the server.\n\n&cReason: {0}\n&cExpires: {1}\n\n&cContact staff if you think this is a mistake."),
-    BLACKLIST("blacklisted", "&cYou are blacklisted from the server.\n\n&cReason: {0}\n&cExpires: {1}\n\n&cContact staff if you think this is a mistake.", "&cYou are blacklisted from the server.\n&cYour account has relation to \"{0}\" which is blacklisted!\n&cReason: {1}\n&cExpires: {2}\n\n&cContact staff if you think this is a mistake.");
+    BLACKLIST("blacklisted", "&cYou are blacklisted from the server.\n\n&cReason: {0}\n&cExpires: {1}\n\n&cContact staff if you think this is a mistake.", "&cYou are blacklisted from the server.\n&cYour account has relation to \"{0}\" which is blacklisted!\n\n&cReason: {1}\n&cExpires: {2}\n\n&cContact staff if you think this is a mistake.");
 
     private final String type;
     private final String message;

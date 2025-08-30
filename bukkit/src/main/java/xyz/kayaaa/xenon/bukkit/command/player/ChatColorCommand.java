@@ -1,0 +1,16 @@
+package xyz.kayaaa.xenon.bukkit.command.player;
+
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.*;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import xyz.kayaaa.xenon.bukkit.menus.ChatColorMenu;
+
+@CommandAlias("chatcolor|color")
+public class ChatColorCommand extends BaseCommand {
+
+    @Default
+    public void color(Player sender) {
+        new ChatColorMenu().openMenu(sender);
+    }
+}
