@@ -10,7 +10,7 @@ import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 @CommandAlias("cc|clearchat")
-@CommandPermission("xenon.cmd.broadcast")
+@CommandPermission("xenon.cmd.clearchat")
 public class ClearChatCommand extends BaseCommand {
 
     @Default

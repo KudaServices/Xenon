@@ -2,11 +2,11 @@ package xyz.kayaaa.xenon.bukkit.command.player;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import xyz.kayaaa.xenon.bukkit.menus.ChatColorMenu;
 
 @CommandAlias("chatcolor|color")
+@CommandPermission("xenon.cmd.chatcolor")
 public class ChatColorCommand extends BaseCommand {
 
     @Default
