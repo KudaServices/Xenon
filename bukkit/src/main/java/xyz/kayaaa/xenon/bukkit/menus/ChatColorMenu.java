@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Button;
+import xyz.kayaaa.xenon.bukkit.tools.menu.Menu;
 import xyz.kayaaa.xenon.bukkit.tools.menu.pagination.PaginatedMenu;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.ColorMapping;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.ItemBuilder;
@@ -20,21 +21,29 @@ import xyz.kayaaa.xenon.shared.tools.string.StringHelper;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ChatColorMenu extends PaginatedMenu {
+public class ChatColorMenu extends Menu {
 
     @Override
-    public String getPrePaginatedTitle(Player player) {
+    public String getTitle(Player player) {
         return "&9Select a chat color...";
     }
 
     @Override
-    public Map<Integer, Button> getAllPagesButtons(Player player) {
+    public int getSize() {
+        return 45;
+    }
+
+    @Override
+    public Map<Integer, Button> getButtons(Player player) {
         Map<Integer, Button> buttons = new HashMap<>();
+        this.fillBorder(buttons);
+        int i = 0;
         for (ChatColor color : Arrays.stream(ChatColor.values()).sorted(Comparator.comparing(ChatColor::name)).collect(Collectors.toList())) {
             if (isBadColor(color)) continue;
-            buttons.put(buttons.size(), new ChatColorButton(color));
+            while (isBorderSlot(i)) i++;
+            buttons.put(i++, new ChatColorButton(color));
         }
-        buttons.put(buttons.size(), new ChatColorButton(ChatColor.RESET));
+        buttons.put(4, new ChatColorButton(ChatColor.RESET));
         return buttons;
     }
 

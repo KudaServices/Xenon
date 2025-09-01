@@ -2,8 +2,15 @@ package xyz.kayaaa.xenon.bukkit.command.grant;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import xyz.kayaaa.xenon.bukkit.menus.GrantsMenu;
+import xyz.kayaaa.xenon.bukkit.menus.grant.GrantMenu;
+import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
+import xyz.kayaaa.xenon.shared.XenonConstants;
 import xyz.kayaaa.xenon.shared.grant.Grant;
+import xyz.kayaaa.xenon.shared.grant.GrantProcedure;
 import xyz.kayaaa.xenon.shared.profile.Profile;
 import xyz.kayaaa.xenon.shared.rank.Rank;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
@@ -12,14 +19,28 @@ import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.tools.java.TimeUtils;
 import xyz.kayaaa.xenon.shared.tools.string.CC;
 
+import java.util.UUID;
+
 @CommandAlias("grant")
 @CommandPermission("xenon.grant.create")
 public class GrantCommands extends BaseCommand {
 
     @Default
     @Description("Grants a rank to a player")
+    @CommandCompletion("@players")
+    public void grants(Player sender, @Name("target") OfflinePlayer target) {
+        if (target == null) {
+            sender.sendMessage(CC.RED + "Player not found. Please recheck their username!");
+            return;
+        }
+
+        new GrantMenu(target.getUniqueId()).openMenu(sender);
+    }
+
+    @Subcommand("manual")
+    @Description("Grants a rank to a player")
     @CommandCompletion("@players @ranks @times *")
-    public void grant(Player sender, @Name("target") Player target, @Name("rank") Rank rank, @Name("time") String time, @Optional @Name("reason") @Flags("remaining") String reason) {
+    public void grant(CommandSender sender, @Name("target") Player target, @Name("rank") Rank rank, @Name("time") String time, @Optional @Name("reason") @Flags("remaining") String reason) {
         if (target == null) {
             sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
             return;
@@ -46,9 +67,8 @@ public class GrantCommands extends BaseCommand {
             return;
         }
 
-        Grant<Rank> grant = service.createGrant(rank, sender.getUniqueId(), duration, reason == null ? "None" : reason);
-        profile.addGrant(grant);
-
-        target.sendMessage(CC.translate("&aYou have been granted " + rank.getColor() + rank.getName() + "&a!"));
+        UUID author = sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID();
+        GrantProcedure<Rank> procedure = new GrantProcedure<>(author, target.getUniqueId(), rank, duration, reason);
+        ServiceContainer.getService(BukkitGrantService.class).applyGrant(author, target.getUniqueId(), procedure);
     }
 }

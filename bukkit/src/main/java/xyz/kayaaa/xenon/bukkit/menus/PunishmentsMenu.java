@@ -108,7 +108,7 @@ public class PunishmentsMenu extends Menu {
             lore.add("");
             lore.add("&fIssued by: &9" + GrantUtils.getAuthor(grant));
             lore.add("&fReason: &9" + (grant.getReason() == null ? "&cNone" : grant.getReason()));
-            lore.add("&fDuration: &9" + (grant.getDuration() == -1 ? "Permanent" : TimeUtils.formatTime(grant.getDuration())));
+            lore.add("&fDuration: &9" + (grant.getDuration() == -1 ? "Permanent" : TimeUtils.formatTimeShort(grant.getDuration())));
 
             if (grant.isActive()) {
                 lore.add("");

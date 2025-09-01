@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import xyz.kayaaa.xenon.shared.XenonShared;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Represents a service in Xenon.
  * <p>
@@ -31,6 +34,17 @@ public abstract class Service {
      * @return The identifier of the service.
      */
     @NonNull public abstract String getIdentifier();
+
+    /**
+     * Returns the service dependencies.
+     * <p>This allows the service container to load services
+     * <p>before this specific service is loaded.
+     * <p>
+     * @return The service dependencies.
+     */
+    public List<Class<? extends Service>> getDependencies() {
+        return Collections.emptyList();
+    }
 
     /**
      * Enables the service.

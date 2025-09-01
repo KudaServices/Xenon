@@ -53,6 +53,10 @@ public class TimeUtils {
         return totalMillis;
     }
 
+    public String normalize(String string) {
+        return formatTime(parseTime(string));
+    }
+
     public String formatTime(long millis) {
         if (millis < 1000L) {
             return millis + " milliseconds";

@@ -101,16 +101,8 @@ public class CC {
         return input == null ? null : Pattern.compile("(?i)" + '§' + "[0-9A-FK-OR]").matcher(CC.translate(input)).replaceAll("");
     }
 
-    public String getPointsDisplay(int currentPoints, int maxPoints) {
-        currentPoints = Math.max(0, Math.min(currentPoints, maxPoints));
-
-        String earnedPoints = currentPoints > 0 ?
-                "&a" + String.join("", Collections.nCopies(currentPoints, "■")) : "";
-
-        String remainingPoints = (maxPoints - currentPoints) > 0 ?
-                "&7" + String.join("", Collections.nCopies(maxPoints - currentPoints, "■")) : "";
-
-        return translate(earnedPoints + remainingPoints);
+    public String formatBoolean(boolean bool) {
+        return bool ? translate("&aYes") : translate("&cNo");
     }
 
 }

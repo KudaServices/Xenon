@@ -5,7 +5,9 @@ import org.bukkit.entity.Player;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Button;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Menu;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class PaginatedMenu extends Menu {
@@ -48,45 +50,98 @@ public abstract class PaginatedMenu extends Menu {
 
 	@Override
 	public final Map<Integer, Button> getButtons(Player player) {
-		int minIndex = (int) ((double) (page - 1) * getMaxItemsPerPage(player));
-		int maxIndex = (int) ((double) (page) * getMaxItemsPerPage(player));
-		int topIndex = 0;
+		Map<Integer, Button> buttons = new HashMap<>();
 
-		HashMap<Integer, Button> buttons = new HashMap<>();
+		List<Integer> availableSlots = getAvailableSlots();
+		int maxItemsPerPage = availableSlots.size();
 
-		for (Map.Entry<Integer, Button> entry : getAllPagesButtons(player).entrySet()) {
-			int ind = entry.getKey();
+		int minIndex = (page - 1) * maxItemsPerPage;
+		int maxIndex = page * maxItemsPerPage;
 
-			if (ind >= minIndex && ind < maxIndex) {
-				ind -= (int) ((double) (getMaxItemsPerPage(player)) * (page - 1)) - 9;
-				buttons.put(ind, entry.getValue());
+		Map<Integer, Button> allButtons = getAllPagesButtons(player);
+		List<Button> buttonList = new ArrayList<>(allButtons.values());
 
-				if (ind > topIndex) {
-					topIndex = ind;
-				}
-			}
+		int slotIndex = 0;
+		for (int i = minIndex; i < maxIndex && i < buttonList.size() && slotIndex < availableSlots.size(); i++) {
+			int slot = availableSlots.get(slotIndex);
+			buttons.put(slot, buttonList.get(i));
+			slotIndex++;
 		}
 
-		buttons.put(0, new PageButton(-1, this));
-		buttons.put(8, new PageButton(1, this));
+		// navegação
+		if (hasPrevious(player)) {
+			buttons.put(0, new PageButton(-1, this));
+		}
+		if (hasNext(player)) {
+			buttons.put(8, new PageButton(1, this));
+		}
 
+		// placeholders da barra superior
 		for (int i = 1; i < 8; i++) {
-			buttons.put(i, getPlaceholderButton());
+			if (!buttons.containsKey(i)) {
+				buttons.put(i, getPlaceholderButton());
+			}
 		}
 
-		Map<Integer, Button> global = getGlobalButtons(player);
+		// borda só no final (não sobrescreve itens já colocados)
+		fillBorder(buttons);
 
+		// botões globais
+		Map<Integer, Button> global = getGlobalButtons(player);
 		if (global != null) {
-			for (Map.Entry<Integer, Button> gent : global.entrySet()) {
-				buttons.put(gent.getKey(), gent.getValue());
-			}
+			buttons.putAll(global);
 		}
 
 		return buttons;
 	}
 
+	public void fillBorder(Map<Integer, Button> buttons) {
+		for (int i = 0; i < getSize(); i++) {
+			if (isBorderSlot(i) && !buttons.containsKey(i)) {
+				buttons.put(i, getPlaceholderButton());
+			}
+		}
+	}
+
+	private List<Integer> getAvailableSlots() {
+		List<Integer> availableSlots = new ArrayList<>();
+
+		for (int i = 0; i < getSize(); i++) {
+			if (isBorderSlot(i)) continue;
+			if (isReservedSlot(i)) continue;
+
+			availableSlots.add(i);
+		}
+
+		return availableSlots;
+	}
+
+	/**
+	 * Checks if there is a next page available
+	 *
+	 * @param player player viewing the inventory
+	 * @return true if there is a next page
+	 */
+	public final boolean hasNext(Player player) {
+		return page < getPages(player);
+	}
+
+	/**
+	 * Checks if there is a previous page available
+	 *
+	 * @param player player viewing the inventory
+	 * @return true if there is a previous page
+	 */
+	public final boolean hasPrevious(Player player) {
+		return page > 1;
+	}
+
+	protected boolean isReservedSlot(int slot) {
+		return slot == (this.getSize() - 5);
+	}
+
 	public int getMaxItemsPerPage(Player player) {
-		return 18;
+		return getAvailableSlots().size();
 	}
 
 	/**

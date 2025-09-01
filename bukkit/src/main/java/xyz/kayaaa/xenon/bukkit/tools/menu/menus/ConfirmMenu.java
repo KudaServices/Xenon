@@ -27,8 +27,8 @@ public class ConfirmMenu extends Menu {
 	public Map<Integer, Button> getButtons(Player player) {
 		HashMap<Integer, Button> buttons = new HashMap<>();
 
-		for (int x = 0; x < 3; x++) {
-			for (int y = 0; y < 3; y++) {
+		for (int x = 0; x < 1; x++) {
+			for (int y = 0; y < 1; y++) {
 				buttons.put(getSlot(x, y), new ConfirmationButton(true, response, closeAfterResponse));
 				buttons.put(getSlot(8 - x, y), new ConfirmationButton(false, response, closeAfterResponse));
 			}

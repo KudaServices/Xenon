@@ -22,6 +22,7 @@ import java.util.*;
 @Getter
 public class ProfileService extends Service {
 
+    private List<Profile> allProfiles;
     private List<Profile> profiles;
     private MongoCollection<Document> profilesCollection;
 
@@ -32,8 +33,10 @@ public class ProfileService extends Service {
 
     @Override
     public void enable() {
+        this.allProfiles = new ArrayList<>();
         this.profiles = new ArrayList<>();
         this.profilesCollection = XenonShared.getInstance().getMongo().getDatabase().getCollection("profiles");
+        this.loadAll();
     }
 
     @Override
@@ -44,9 +47,16 @@ public class ProfileService extends Service {
         this.profilesCollection = null;
     }
 
+    @Override
+    public List<Class<? extends Service>> getDependencies() {
+        return Arrays.asList(RankService.class, GrantService.class, PunishmentService.class);
+    }
+
     public Profile find(UUID uuid) {
         Validate.notNull(uuid, "UUID cannot be null");
-        return this.profiles.stream().filter(profile -> profile.getUUID().equals(uuid)).findFirst().orElse(null);
+        Profile toReturn = this.profiles.stream().filter(profile -> profile.getUUID().equals(uuid)).findFirst().orElse(null);
+        if (toReturn == null) toReturn = this.allProfiles.stream().filter(profile -> profile.getUUID().equals(uuid)).findFirst().orElse(null);
+        return toReturn;
     }
 
     public Profile load(UUID uuid) {
@@ -66,9 +76,9 @@ public class ProfileService extends Service {
             profile = fromDocument(doc);
         }
 
-        if (!this.profiles.contains(profile)) {
-            this.profiles.add(profile);
-        }
+        if (!this.profiles.contains(profile)) this.profiles.add(profile);
+        if (!this.allProfiles.contains(profile)) this.allProfiles.add(profile);
+
         return profile;
     }
 
@@ -81,6 +91,13 @@ public class ProfileService extends Service {
 
         if (memoryProfile != null) {
             return memoryProfile;
+        }
+
+        if (this.allProfiles.stream().anyMatch(profile -> profile.getToken().equalsIgnoreCase(token))) {
+            return this.allProfiles.stream()
+                    .filter(profile -> profile.getToken().equalsIgnoreCase(token))
+                    .findFirst()
+                    .orElse(null);
         }
 
         Document doc = profilesCollection.find(Filters.eq("token", token)).first();
@@ -120,22 +137,22 @@ public class ProfileService extends Service {
     }
 
     public void loadAll() {
-        this.profiles.clear();
-        List<Document> allProfiles = profilesCollection.find().into(new ArrayList<>());
+        this.allProfiles.clear();
+        List<Document> profileDocuments = profilesCollection.find().into(new ArrayList<>());
 
-        for (Document doc : allProfiles) {
+        for (Document doc : profileDocuments) {
             Profile profile = fromDocument(doc);
             if (profile == null) continue;
 
-            this.profiles.add(profile);
+            this.allProfiles.add(profile);
         }
 
-        this.print("&aLoaded " + profiles.size() + " profiles from MongoDB");
+        this.print("&aLoaded " + allProfiles.size() + " profiles from MongoDB");
     }
 
     public void saveAll() {
-        profiles.forEach(this::save);
-        this.print("&aSaved " + profiles.size() + " profiles to MongoDB");
+        allProfiles.forEach(this::save);
+        this.print("&aSaved " + allProfiles.size() + " profiles to MongoDB");
     }
 
     @SuppressWarnings("unchecked")

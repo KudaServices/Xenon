@@ -66,6 +66,12 @@ public class ServiceContainer {
     public void registerService(Service service) {
         Validate.notNull(service, "Service cannot be null");
         Validate.notNull(service.getClass(), "Service class cannot be null");
+        for (Class<? extends Service> dependencyIdentifier : service.getDependencies()) {
+            if (services.containsKey(dependencyIdentifier)) continue;
+
+            Service depInstance = newServiceInstance(dependencyIdentifier);
+            registerService(depInstance);
+        }
         services.put(service.getClass(), service);
         service.setEnabled();
     }
@@ -97,4 +103,5 @@ public class ServiceContainer {
         Service service = services.get(serviceClass);
         return serviceClass.cast(service);
     }
+
 }

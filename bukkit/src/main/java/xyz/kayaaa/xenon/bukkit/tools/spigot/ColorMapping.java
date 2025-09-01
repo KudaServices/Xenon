@@ -132,4 +132,16 @@ public class ColorMapping {
         }
     }
 
+    public ChatColor fromString(String color) {
+        if (color.contains("§") || color.contains("&")) {
+            char codeChar = color.charAt(1);
+            return ChatColor.getByChar(codeChar);
+        }
+        return null;
+    }
+
+    public DyeColor chatColorToDyeColor(ChatColor color) {
+        return DyeColor.getByDyeData(dyeMap.get(color).byteValue());
+    }
+
 }

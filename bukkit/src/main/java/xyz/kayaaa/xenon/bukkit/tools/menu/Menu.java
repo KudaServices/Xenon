@@ -145,7 +145,7 @@ public abstract class Menu {
 		if (buttons == null) return;
 		for (int i = 0; i < this.getSize(); i++) {
 			if (!isBorderSlot(i)) continue;
-			buttons.put(i, this.placeholderButton);
+			buttons.putIfAbsent(i, this.placeholderButton);
 		}
 	}
 
