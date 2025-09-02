@@ -77,14 +77,14 @@ public class ServiceContainer {
     }
 
     public void shutdownServices() {
-        services.values().forEach(service -> {
-            try {
-                service.setEnabled(false);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        services.values().forEach(ServiceContainer::shutdownService);
         services.clear();
+    }
+
+    @SneakyThrows
+    public void shutdownService(Service service) {
+        Validate.notNull(service, "Service cannot be null");
+        service.setEnabled(false);
     }
 
     /**
