@@ -1,0 +1,47 @@
+package rip.kuda.xenon.bukkit.command.punishment.remove;
+
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.*;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import rip.kuda.xenon.bukkit.XenonPlugin;
+import rip.kuda.xenon.shared.XenonConstants;
+import rip.kuda.xenon.shared.grant.Grant;
+import rip.kuda.xenon.shared.profile.Profile;
+import rip.kuda.xenon.shared.punishment.Punishment;
+import rip.kuda.xenon.shared.punishment.PunishmentType;
+import rip.kuda.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
+import rip.kuda.xenon.shared.service.ServiceContainer;
+import rip.kuda.xenon.shared.service.impl.ProfileService;
+import rip.kuda.xenon.shared.service.impl.PunishmentService;
+
+@CommandAlias("unmute")
+@CommandPermission("xenon.punish.mute")
+public class UnmuteCommand extends BaseCommand {
+
+    @Default
+    @CommandCompletion("@players *")
+    public void unmute(CommandSender sender, @Name("target") OfflinePlayer target, @Optional @Name("reason") @Flags("remaining") String reason) {
+        if (target == null) {
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
+            return;
+        }
+
+        Profile profile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
+        if (profile == null) {
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
+            return;
+        }
+
+        if (profile.findActivePunishment(PunishmentType.MUTE) == null) {
+            sender.sendMessage(XenonConstants.getPlayerNotPunished().replace("<punishment_type>", PunishmentType.MUTE.getAction()));
+            return;
+        }
+
+        Grant<Punishment> punishment = profile.findActivePunishment(PunishmentType.MUTE);
+        ServiceContainer.getService(PunishmentService.class).removePunishment(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), profile, punishment, reason);
+        ServiceContainer.getService(ProfileService.class).save(profile);
+        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), target.getUniqueId(), PunishmentType.MUTE.name(), -1, -1, reason, true, false));
+    }
+}
