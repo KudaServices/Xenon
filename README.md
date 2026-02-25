@@ -17,7 +17,6 @@ No. (maybe it is, haven't tested in depth, but I would assume it is not.)
 ### Xenon is a basic core, and buying it would be really messed up. You are allowed to fork it, but not to sell it.
 
 # Special thanks
-- Brandon (homeboy, rated the code "decent" even though it is arse)
 - vWinter (cat is just cat, instantly included)
 - vaaaleh (homeboy #2 s/o m8)
 - Vifez (he's just Vifez)
