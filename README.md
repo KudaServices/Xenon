@@ -1,17 +1,16 @@
-# Xenon - A Network Core
-Xenon is a custom-made network core, and is the first one I've ever done.
+## Xenon
+Xenon is a lightweight, open-source network core plugin designed for small to mid-sized Minecraft networks. It provides essential backend systems to help you manage players, permissions, and moderation across multiple servers.
+## Features
+* **Grant System** – Flexible permission grants with support for temporary and permanent ranks
+* **Rank System** – Fully manageable rank hierarchy for structured permission control
+* **Punishment System** – Bans, mutes, warnings, and other moderation tools
+* **Gift Card System** – Redeemable codes for ranks, perks, or rewards
+* **Alt Detection System** – Identify and manage alternate accounts
+* **Advanced Chat Filter** – Blocks most variations of profanity
+* **Server Manager** – Execute and broadcast commands across connected servers
+* **Many More..** - There is more..
 
-# Current Features
-- Grant System
-- Rank System
-- Punishment System
-- Gift-Card System
-- Alts System
-- Chat Filter (blocking almost all sorts of leet)
-- Server Manager (can broadcast commands to other servers)
-> Might have more, but I forgot, been a while since I actually updated it.
+> **Note:** Xenon is not intended for production environments or large-scale networks. If you're running a larger or more demanding network, consider using heather instead.
 
-# Usable?
-No. (maybe it is, haven't tested in depth, but I would assume it is not.)
-
-### Xenon is a basic core, and buying it would be really messed up. You are allowed to fork it, but not to sell it.
+## Authors:
+- All credits go to matheus.
