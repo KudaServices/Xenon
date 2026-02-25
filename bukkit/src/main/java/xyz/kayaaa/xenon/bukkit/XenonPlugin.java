@@ -54,6 +54,11 @@ public class XenonPlugin extends JavaPlugin {
 
     private boolean joinable = false;
 
+     
+      // mqaaz was here
+              // hi!!
+
+
     @Override
     public void onEnable() {
         instance = this;
