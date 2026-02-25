@@ -19,5 +19,4 @@ No. (maybe it is, haven't tested in depth, but I would assume it is not.)
 # Special thanks
 - vWinter (cat is just cat, instantly included)
 - vaaaleh (homeboy #2 s/o m8)
-- Vifez (he's just Vifez)
 - You (yeah whatever)
