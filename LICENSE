@@ -1,0 +1,71 @@
+Kuda License A (KLA)
+Version 1.0
+Copyright (c) 2026 Kuda Services
+All Rights Reserved
+
+1. Definitions
+
+“Software” means the source code, compiled binaries, assets, documentation, and any associated files distributed under this License.
+
+“Original Author” means the copyright holder(s) of the Software.
+
+“Substantial Modification” means modifications that materially alter the structure, core functionality, or architecture of the Software and constitute no less than 30% of the total codebase, measured by added, removed, or significantly altered lines of code. Minor edits, including but not limited to bug fixes, formatting changes, refactoring, configuration edits, renaming variables, comments, cosmetic adjustments, dependency updates, or small feature additions, do not qualify as Substantial Modifications.
+
+2. Grant of Rights
+
+Subject to the conditions of this License, permission is granted to any person obtaining a copy of the Software to:
+
+a) Use the Software for personal or commercial purposes.
+b) Copy and redistribute the Software.
+c) Fork the Software publicly or privately.
+d) Modify the Software.
+
+These rights are granted worldwide, non-exclusive, and free of charge.
+
+3. Attribution Requirements
+
+All copies, redistributions, forks, and derivative works must:
+
+a) Retain this License in full.
+b) Provide clear and visible credit to the Original Author.
+c) Clearly state that the work is derived from the original Software.
+
+No person may remove, alter, or obscure the original credits.
+
+A contributor may add their own name to the credits only if they have made a Substantial Modification as defined in Section 1. If a contributor does not meet the Substantial Modification threshold, they may acknowledge their changes separately but may not list themselves as a primary or co-author.
+
+4. Commercial Restrictions
+
+You may not:
+
+a) Sell the Software.
+b) Sell modified or derivative versions of the Software.
+c) Charge any fee specifically for access to, licensing of, or distribution of the Software itself.
+
+You may:
+
+a) Use the Software within commercial systems, products, or services.
+b) Generate indirect revenue from services, platforms, hosting, subscriptions, digital goods, or other monetized environments in which the Software operates.
+c) Charge for services that rely on the Software, provided the Software itself is not being sold or sublicensed for a fee.
+
+5. No Relicensing
+
+You may not relicense the Software under any other license.
+Derivative works must remain under this License.
+No additional restrictions may be imposed beyond those contained in this License.
+
+6. No Trademark Rights
+
+This License does not grant permission to use the name, branding, or trademarks of the Original Author except as required for proper attribution.
+
+7. Termination
+
+Any violation of this License automatically terminates the rights granted herein. Upon termination, the violating party must cease all use and distribution of the Software.
+
+8. Disclaimer of Warranty
+
+The Software is provided "AS IS", without warranty of any kind, express or implied, including but not limited to merchantability, fitness for a particular purpose, and noninfringement.
+
+9. Limitation of Liability
+
+In no event shall the Original Author be liable for any claim, damages, or other liability arising from, out of, or in connection with the Software or the use or other dealings in the Software.
