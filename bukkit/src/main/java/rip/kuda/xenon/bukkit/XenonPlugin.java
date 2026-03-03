@@ -22,7 +22,7 @@ import rip.kuda.xenon.bukkit.tools.spigot.TaskUtil;
 import rip.kuda.xenon.bukkit.tools.xenon.XenonBukkitLogger;
 import rip.kuda.xenon.shared.XenonShared;
 import rip.kuda.xenon.shared.credentials.MongoCredentials;
-import rip.kuda.xenon.shared.credentials.RedisCredentials; // hamza told me to do this
+import rip.kuda.xenon.shared.credentials.RedisCredentials;
 import rip.kuda.xenon.shared.gift.GiftCode;
 import rip.kuda.xenon.shared.rank.Rank;
 import rip.kuda.xenon.shared.redis.packets.misc.MessagePacket;
